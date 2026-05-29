@@ -49,5 +49,5 @@ def load_settings() -> Settings:
         proxmox_host=_required("PROXMOX_HOST"),
         proxmox_user=_required("PROXMOX_USER"),
         proxmox_password=_required("PROXMOX_PASSWORD"),
-        proxmox_verify_ssl=_to_bool(os.environ.get("PROXMOX_VERIFY_SSL", "false")),
+        proxmox_verify_ssl=_to_bool(os.environ.get("PROXMOX_VERIFY_SSL", "true")),
     )
