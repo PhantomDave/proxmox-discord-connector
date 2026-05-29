@@ -15,7 +15,7 @@ def config_failure(message, *args):
 
 class ResourceException(Exception):
     """
-    An Exception thrown when an Proxmox API call failed
+    An Exception thrown when a Proxmox API call failed
     """
     def __init__(self, status_code, status_message, content, errors=..., exit_code=...) -> None:
         """
