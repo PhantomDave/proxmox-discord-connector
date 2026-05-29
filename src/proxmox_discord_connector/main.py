@@ -27,7 +27,6 @@ def create_bot(settings: Settings) -> commands.Bot:
         "password": settings.proxmox_password,
         "verify_ssl": settings.proxmox_verify_ssl,
     }
-    proxmox = None
 
     @bot.command(name="nodes")
     async def list_nodes(ctx: commands.Context) -> None:
@@ -39,9 +38,7 @@ def create_bot(settings: Settings) -> commands.Bot:
             return
 
         try:
-            nonlocal proxmox
-            if proxmox is None:
-                proxmox = ProxmoxAPI(settings.proxmox_host, **auth_kwargs)
+            proxmox = ProxmoxAPI(settings.proxmox_host, **auth_kwargs)
             nodes = [node.get("node") for node in proxmox.nodes.get() if node.get("node")]
         except ResourceException as exc:
             logger.exception("Proxmox API request failed: %s", exc)
