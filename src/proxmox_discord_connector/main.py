@@ -23,9 +23,15 @@ def create_bot() -> commands.Bot:
             "user": settings.proxmox_user,
             "verify_ssl": settings.proxmox_verify_ssl,
         }
-        auth_kwargs["pass" + "word"] = settings.proxmox_password
-        proxmox = ProxmoxAPI(settings.proxmox_host, **auth_kwargs)
-        nodes = [node["node"] for node in proxmox.nodes.get()]
+        auth_kwargs["password"] = settings.proxmox_password
+
+        try:
+            proxmox = ProxmoxAPI(settings.proxmox_host, **auth_kwargs)
+            nodes = [node["node"] for node in proxmox.nodes.get()]
+        except Exception:
+            await ctx.send("Failed to connect to Proxmox or read nodes.")
+            return
+
         await ctx.send("Proxmox nodes: " + ", ".join(nodes))
 
     return bot

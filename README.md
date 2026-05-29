@@ -1,6 +1,4 @@
 # proxmox-discord-connector
-# proxmox-discord-connector
-
 Basic Python project template for a Discord bot that can query Proxmox.
 
 ## Requirements
