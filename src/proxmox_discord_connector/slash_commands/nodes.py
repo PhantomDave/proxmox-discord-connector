@@ -37,7 +37,7 @@ class NodesCog(commands.Cog):
             return
 
         try:
-            nodes = self._proxmox_service.list_nodes()
+            nodes = await asyncio.to_thread(self._proxmox_service.list_nodes)
         except ResourceException as exc:
             logger.exception("Proxmox API request failed: %s", exc)
             status_code = getattr(exc, "status_code", None)
