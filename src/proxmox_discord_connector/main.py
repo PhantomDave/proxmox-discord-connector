@@ -7,13 +7,12 @@ from discord.ext import commands
 from proxmoxer.core import ResourceException
 from proxmoxer import ProxmoxAPI
 
-from proxmox_discord_connector.config import load_settings
+from proxmox_discord_connector.config import Settings, load_settings
 
 logger = logging.getLogger(__name__)
 
 
-def create_bot() -> commands.Bot:
-    settings = load_settings()
+def create_bot(settings: Settings) -> commands.Bot:
     intents = discord.Intents.default()
     intents.message_content = True
     bot = commands.Bot(command_prefix="!", intents=intents)
@@ -35,7 +34,11 @@ def create_bot() -> commands.Bot:
             nodes = [node.get("node") for node in proxmox.nodes.get() if node.get("node")]
         except ResourceException as exc:
             logger.exception("Proxmox API request failed: %s", exc)
-            await ctx.send("Failed to query Proxmox API. Check host and credentials.")
+            status_code = getattr(exc, "status_code", None)
+            if status_code == 401:
+                await ctx.send("Proxmox authentication failed. Check credentials.")
+            else:
+                await ctx.send("Failed to query Proxmox API. Check host and API availability.")
             return
 
         if not nodes:
@@ -50,7 +53,7 @@ def create_bot() -> commands.Bot:
 def main() -> None:
     logging.basicConfig(level=logging.INFO)
     settings = load_settings()
-    bot = create_bot()
+    bot = create_bot(settings)
     bot.run(settings.discord_bot_token)
 
 

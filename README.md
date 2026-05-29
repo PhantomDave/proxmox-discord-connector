@@ -14,7 +14,7 @@ pip install -e .
 cp .env.example .env
 ```
 
-`PROXMOX_HOST`, `PROXMOX_USER`, and `PROXMOX_PASSWORD` are required.
+`DISCORD_BOT_TOKEN`, `PROXMOX_HOST`, `PROXMOX_USER`, and `PROXMOX_PASSWORD` are required.
 
 ## Run
 
