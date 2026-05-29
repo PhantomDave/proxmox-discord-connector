@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "proxmox-discord-connector"
+version = "0.1.0"
+description = "Basic Proxmox + Discord bot template"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "discord.py>=2.4.0",
+  "proxmoxer>=2.0.1",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
