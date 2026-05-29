@@ -6,6 +6,7 @@ import discord
 from discord.ext import commands
 from proxmoxer.core import ResourceException
 from proxmoxer import ProxmoxAPI
+from requests.exceptions import RequestException
 
 from proxmox_discord_connector.config import Settings, load_settings
 
@@ -21,16 +22,26 @@ def create_bot(settings: Settings) -> commands.Bot:
     async def on_ready() -> None:
         logger.info("Logged in as %s", bot.user)
 
+    auth_kwargs = {
+        "user": settings.proxmox_user,
+        "password": settings.proxmox_password,
+        "verify_ssl": settings.proxmox_verify_ssl,
+    }
+    proxmox = None
+
     @bot.command(name="nodes")
     async def list_nodes(ctx: commands.Context) -> None:
-        auth_kwargs = {
-            "user": settings.proxmox_user,
-            "password": settings.proxmox_password,
-            "verify_ssl": settings.proxmox_verify_ssl,
-        }
+        if (
+            settings.discord_allowed_user_ids
+            and ctx.author.id not in settings.discord_allowed_user_ids
+        ):
+            await ctx.send("You are not allowed to run this command.")
+            return
 
         try:
-            proxmox = ProxmoxAPI(settings.proxmox_host, **auth_kwargs)
+            nonlocal proxmox
+            if proxmox is None:
+                proxmox = ProxmoxAPI(settings.proxmox_host, **auth_kwargs)
             nodes = [node.get("node") for node in proxmox.nodes.get() if node.get("node")]
         except ResourceException as exc:
             logger.exception("Proxmox API request failed: %s", exc)
@@ -39,6 +50,10 @@ def create_bot(settings: Settings) -> commands.Bot:
                 await ctx.send("Proxmox authentication failed. Check credentials.")
             else:
                 await ctx.send("Failed to query Proxmox API. Check host and API availability.")
+            return
+        except RequestException as exc:
+            logger.exception("Proxmox network request failed: %s", exc)
+            await ctx.send("Failed to reach Proxmox host. Check network and host settings.")
             return
 
         if not nodes:

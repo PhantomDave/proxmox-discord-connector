@@ -12,9 +12,11 @@ python -m venv .venv
 source .venv/bin/activate
 pip install -e .
 cp .env.example .env
+set -a && source .env && set +a
 ```
 
 `DISCORD_BOT_TOKEN`, `PROXMOX_HOST`, `PROXMOX_USER`, and `PROXMOX_PASSWORD` are required.
+`DISCORD_ALLOWED_USER_IDS` is optional (comma-separated Discord user IDs).
 
 ## Run
 
