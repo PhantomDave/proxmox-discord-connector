@@ -127,7 +127,7 @@ class ProxmoxService:
             for raw in raw_lxcs:
                 name = self._as_string(raw.get("name"))
                 vmid = self._as_int(raw.get("vmid"))
-                if name and vmid and f"{name}/{vmid}" == target:
+                if name and vmid is not None and f"{name}/{vmid}" == target:
                     proxmox_any.nodes(node.name).lxc(vmid).status.reboot.post()
                     return
         raise ValueError(f"No LXC container found with target identifier: {target}")
@@ -139,7 +139,7 @@ class ProxmoxService:
             for raw in raw_lxcs:
                 name = self._as_string(raw.get("name"))
                 vmid = self._as_int(raw.get("vmid"))
-                if name and vmid and f"{name}/{vmid}" == target:
+                if name and vmid is not None and f"{name}/{vmid}" == target:
                     proxmox_any.nodes(node.name).lxc(vmid).status.shutdown.post()
                     return
         raise ValueError(f"No LXC container found with target identifier: {target}")
@@ -151,7 +151,7 @@ class ProxmoxService:
             for raw in raw_lxcs:
                 name = self._as_string(raw.get("name"))
                 vmid = self._as_int(raw.get("vmid"))
-                if name and vmid and f"{name}/{vmid}" == target:
+                if name and vmid is not None and f"{name}/{vmid}" == target:
                     proxmox_any.nodes(node.name).lxc(vmid).status.start.post()
                     return
         raise ValueError(f"No LXC container found with target identifier: {target}")

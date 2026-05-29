@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import logging
 
 import discord
@@ -59,7 +60,7 @@ class LxcTargetActionView(BaseTargetActionView):
 
     async def on_shutdown(self, interaction: discord.Interaction, target: str) -> None:
         try:
-            self._proxmox_service.shutdown_lxc(target)
+            await asyncio.to_thread(self._proxmox_service.shutdown_lxc, target)
         except ResourceException as exc:
             logger.exception("Proxmox API request failed during LXC shutdown: %s", exc)
             await interaction.response.send_message(
@@ -85,7 +86,7 @@ class LxcTargetActionView(BaseTargetActionView):
 
     async def on_start(self, interaction: discord.Interaction, target: str) -> None:
         try:
-            self._proxmox_service.start_lxc(target)
+            await asyncio.to_thread(self._proxmox_service.start_lxc, target)
         except ResourceException as exc:
             logger.exception("Proxmox API request failed during LXC start: %s", exc)
             await interaction.response.send_message(
@@ -111,7 +112,7 @@ class LxcTargetActionView(BaseTargetActionView):
 
     async def on_reboot(self, interaction: discord.Interaction, target: str) -> None:
         try:
-            self._proxmox_service.reboot_lxc(target)
+            await asyncio.to_thread(self._proxmox_service.reboot_lxc, target)
         except ResourceException as exc:
             logger.exception("Proxmox API request failed during LXC reboot: %s", exc)
             await interaction.response.send_message(
@@ -154,7 +155,7 @@ class LxcCog(commands.Cog):
             return
 
         try:
-            lxcs = self._proxmox_service.list_lxcs()
+            lxcs = await asyncio.to_thread(self._proxmox_service.list_lxcs)
         except ResourceException as exc:
             logger.exception("Proxmox API request failed: %s", exc)
             status_code = getattr(exc, "status_code", None)
@@ -187,13 +188,23 @@ class LxcCog(commands.Cog):
         )
 
         targets = [
-            f"{lxc.name}/{lxc.vmid}" if lxc.vmid is not None else lxc.node for lxc in lxcs
+            f"{lxc.name}/{lxc.vmid}"
+            for lxc in lxcs
+            if lxc.name is not None and lxc.vmid is not None
         ]
         target_statuses = {
             f"{lxc.name}/{lxc.vmid}": lxc.status or "unknown"
             for lxc in lxcs
             if lxc.name is not None and lxc.vmid is not None
         }
+
+        if not targets:
+            await interaction.response.send_message(
+                embed=embed,
+                content="No actionable LXC containers with both name and VMID were returned.",
+            )
+            return
+
         await interaction.response.send_message(
             embed=embed,
             view=ActionsLauncherView(
