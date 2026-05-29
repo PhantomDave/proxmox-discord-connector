@@ -26,9 +26,9 @@ def create_bot() -> commands.Bot:
     async def list_nodes(ctx: commands.Context) -> None:
         auth_kwargs = {
             "user": settings.proxmox_user,
+            "password": settings.proxmox_password,
             "verify_ssl": settings.proxmox_verify_ssl,
         }
-        auth_kwargs["password"] = settings.proxmox_password
 
         try:
             proxmox = ProxmoxAPI(settings.proxmox_host, **auth_kwargs)
@@ -50,8 +50,6 @@ def create_bot() -> commands.Bot:
 def main() -> None:
     logging.basicConfig(level=logging.INFO)
     settings = load_settings()
-    if not settings.discord_bot_token:
-        raise RuntimeError("DISCORD_BOT_TOKEN is required.")
     bot = create_bot()
     bot.run(settings.discord_bot_token)
 

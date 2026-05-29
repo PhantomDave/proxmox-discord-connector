@@ -26,7 +26,7 @@ def _required(name: str) -> str:
 
 def load_settings() -> Settings:
     return Settings(
-        discord_bot_token=os.environ.get("DISCORD_BOT_TOKEN", "").strip(),
+        discord_bot_token=_required("DISCORD_BOT_TOKEN"),
         proxmox_host=_required("PROXMOX_HOST"),
         proxmox_user=_required("PROXMOX_USER"),
         proxmox_password=_required("PROXMOX_PASSWORD"),
