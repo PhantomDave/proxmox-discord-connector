@@ -28,7 +28,18 @@ def _required(name: str) -> str:
 def _parse_int_list(value: str) -> tuple[int, ...]:
     if not value.strip():
         return ()
-    return tuple(int(item.strip()) for item in value.split(",") if item.strip())
+    parsed = []
+    for item in value.split(","):
+        candidate = item.strip()
+        if not candidate:
+            continue
+        try:
+            parsed.append(int(candidate))
+        except ValueError as exc:
+            raise ValueError(
+                f"DISCORD_ALLOWED_USER_IDS contains an invalid integer value: {candidate}"
+            ) from exc
+    return tuple(parsed)
 
 
 def load_settings() -> Settings:
