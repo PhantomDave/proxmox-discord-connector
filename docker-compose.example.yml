@@ -1,0 +1,7 @@
+services:
+  proxmox-discord-connector:
+    image: ghcr.io/phantomdave/proxmox-discord-connector:latest
+    container_name: proxmox-discord-connector
+    env_file:
+      - .env
+    restart: unless-stopped
